@@ -1,0 +1,115 @@
+/* ── Fonts first ────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/* ── Design Tokens – Light / Kaggle-inspired ────────────── */
+:root {
+  /* Palette */
+  --white: #ffffff;
+  --beige: #f3f2ee;
+  /* warm light beige sections */
+  --beige-2: #ebe9e3;
+  /* slightly darker beige */
+  --black: #1a1a1a;
+  /* primary text / dark buttons */
+  --black-2: #111111;
+  --gray-1: #5a5a5a;
+  /* secondary text */
+  --gray-2: #888888;
+  /* muted text */
+  --gray-3: #cccccc;
+  /* borders */
+  --gray-4: #eeeeee;
+  /* light borders / dividers */
+
+  /* Blue – used sparingly as accent only */
+  --blue: #2196f3;
+  /* links, highlights */
+  --blue-dark: #1565c0;
+  --blue-light: #e3f2fd;
+  /* very faint blue bg tint */
+
+  /* Semantic */
+  --bg: var(--white);
+  --bg-section: var(--beige);
+  --text: var(--black);
+  --text-muted: var(--gray-1);
+  --text-dim: var(--gray-2);
+  --border: var(--gray-3);
+  --border-light: var(--gray-4);
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  zoom: 1.1;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--beige);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #aaa;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+
+/* ── Keyframes ──────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
