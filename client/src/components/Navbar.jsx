@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, LogOut, Sparkles, User } from 'lucide-react';
+import { LogIn, LogOut, Sparkles, User, LayoutDashboard } from 'lucide-react';
+import { useState } from 'react';
 
 /* ── tokens ── */
 const T = {
@@ -16,6 +17,7 @@ const T = {
 export default function Navbar() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [chipHover, setChipHover] = useState(false);
 
     const btnBlack = {
         display: 'flex', alignItems: 'center', gap: 6,
@@ -61,20 +63,53 @@ export default function Navbar() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {user ? (
                         <>
-                            {/* User chip */}
-                            <div style={{
-                                display: 'flex', alignItems: 'center', gap: 7,
-                                padding: '5px 12px', borderRadius: 6,
-                                background: T.beige, border: `1px solid ${T.gray4}`,
-                            }}>
-                                {user.avatar
-                                    ? <img src={user.avatar} alt={user.name} style={{ width: 22, height: 22, borderRadius: '50%' }} />
-                                    : <User size={14} color={T.gray1} />
-                                }
-                                <span style={{ fontSize: 13, fontWeight: 500, color: T.black, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {user.name}
+                            {/* User chip → Dashboard link (crossfade on hover) */}
+                            <Link to="/dashboard"
+                                onMouseEnter={() => setChipHover(true)}
+                                onMouseLeave={() => setChipHover(false)}
+                                style={{
+                                    position: 'relative',
+                                    display: 'flex', alignItems: 'center', gap: 7,
+                                    padding: '5px 12px', borderRadius: 6,
+                                    background: chipHover ? T.black : T.beige,
+                                    border: `1px solid ${chipHover ? T.black : T.gray4}`,
+                                    textDecoration: 'none',
+                                    transition: 'background 0.25s ease, border-color 0.25s ease',
+                                    cursor: 'pointer',
+                                    overflow: 'hidden',
+                                    minWidth: 90,
+                                }}
+                            >
+                                {/* Default state: avatar + name */}
+                                <span style={{
+                                    display: 'flex', alignItems: 'center', gap: 7,
+                                    opacity: chipHover ? 0 : 1,
+                                    transition: 'opacity 0.2s ease',
+                                    pointerEvents: 'none',
+                                }}>
+                                    {user.avatar
+                                        ? <img src={user.avatar} alt={user.name} style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }} />
+                                        : <User size={14} color={T.gray1} />
+                                    }
+                                    <span style={{ fontSize: 13, fontWeight: 500, color: T.black, whiteSpace: 'nowrap' }}>
+                                        {user.name}
+                                    </span>
                                 </span>
-                            </div>
+
+                                {/* Hover state: dashboard icon + text (absolute overlay) */}
+                                <span style={{
+                                    position: 'absolute', inset: 0,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                                    opacity: chipHover ? 1 : 0,
+                                    transition: 'opacity 0.2s ease',
+                                    pointerEvents: 'none',
+                                }}>
+                                    <LayoutDashboard size={14} color={T.white} />
+                                    <span style={{ fontSize: 13, fontWeight: 600, color: T.white, whiteSpace: 'nowrap' }}>
+                                        Dashboard
+                                    </span>
+                                </span>
+                            </Link>
 
                             {/* Practice */}
                             <Link to="/practice" style={btnBlack}
@@ -83,17 +118,15 @@ export default function Navbar() {
                             >
                                 <Sparkles size={13} /> Practice
                             </Link>
-
-                            {/* Logout */}
-                            <button onClick={() => { logout(); navigate('/'); }} style={btnOutline}
-                                onMouseEnter={e => { e.currentTarget.style.background = T.beige; e.currentTarget.style.borderColor = '#aaa'; }}
-                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = T.gray3; }}
-                            >
-                                <LogOut size={13} /> Logout
-                            </button>
                         </>
                     ) : (
                         <>
+                            <Link to="/practice" style={btnOutline}
+                                onMouseEnter={e => { e.currentTarget.style.background = T.beige; e.currentTarget.style.borderColor = '#aaa'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = T.gray3; }}
+                            >
+                                <Sparkles size={13} color={T.blue} /> Practice
+                            </Link>
                             <Link to="/login" style={btnOutline}
                                 onMouseEnter={e => { e.currentTarget.style.background = T.beige; e.currentTarget.style.borderColor = '#aaa'; }}
                                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = T.gray3; }}

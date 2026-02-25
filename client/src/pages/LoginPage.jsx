@@ -36,7 +36,7 @@ export default function LoginPage() {
         try {
             await login(form.email, form.password);
             toast.success('Welcome back!');
-            navigate('/practice');
+            navigate('/');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Login failed');
         } finally { setLoading(false); }
@@ -46,7 +46,7 @@ export default function LoginPage() {
         try {
             await googleLogin(cr.credential);
             toast.success('Signed in with Google!');
-            navigate('/practice');
+            navigate('/');
         } catch { toast.error('Google sign-in failed'); }
     };
 

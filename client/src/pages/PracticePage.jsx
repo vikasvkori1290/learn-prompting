@@ -124,10 +124,10 @@ export default function PracticePage() {
                 </div>
 
                 {/* Two panels */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, minHeight: 520 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, alignItems: 'start' }}>
 
                     {/* LEFT: Image */}
-                    <div style={{ ...card, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ ...card, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
 
                         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
                             {imageLoading ? (
@@ -178,7 +178,7 @@ export default function PracticePage() {
                     </div>
 
                     {/* RIGHT: Prompt + Score */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
 
                         <div style={{ ...card, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
