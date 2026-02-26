@@ -29,7 +29,13 @@ const features = [
 ];
 
 export default function HomePage() {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
+
+    if (loading) return (
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+    );
 
     return (
         <div style={{ minHeight: '100vh', background: T.white, color: T.black, fontFamily: "'Inter',sans-serif" }}>
@@ -88,23 +94,43 @@ export default function HomePage() {
 
                         {/* CTA */}
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                            <Link to={user ? '/arena' : '/register'} style={{
+                                flex: '1 1 auto',
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                padding: '12px 24px', borderRadius: 6,
+                                background: T.blue, color: T.white,
+                                fontSize: 14, fontWeight: 700,
+                                textDecoration: 'none', fontFamily: "'Inter',sans-serif",
+                                transition: 'background .18s',
+                                minWidth: 160
+                            }}
+                                onMouseEnter={e => e.currentTarget.style.background = '#1e88e5'}
+                                onMouseLeave={e => e.currentTarget.style.background = T.blue}
+                            >
+                                <Trophy size={16} />
+                                Create Battle
+                            </Link>
                             <Link to={user ? '/practice' : '/register'} style={{
-                                display: 'inline-flex', alignItems: 'center', gap: 8,
-                                padding: '12px 28px', borderRadius: 6,
+                                flex: '1 1 auto',
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                padding: '12px 24px', borderRadius: 6,
                                 background: T.black, color: T.white,
                                 fontSize: 14, fontWeight: 700,
                                 textDecoration: 'none', fontFamily: "'Inter',sans-serif",
                                 transition: 'background .18s',
+                                minWidth: 160
                             }}
                                 onMouseEnter={e => e.currentTarget.style.background = '#333'}
                                 onMouseLeave={e => e.currentTarget.style.background = T.black}
                             >
-                                {user ? 'Start Practicing' : 'Register with Email'}
-                                <ArrowRight size={16} />
+                                <Zap size={16} />
+                                {user ? 'Solo Practice' : 'Start Practicing'}
                             </Link>
+
                             {!user && (
                                 <Link to="/login" style={{
-                                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                                    width: '100%',
+                                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                                     padding: '11px 24px', borderRadius: 6,
                                     background: 'transparent', border: `1px solid ${T.gray3}`,
                                     color: T.black, fontSize: 14, fontWeight: 500,
