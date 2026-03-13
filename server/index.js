@@ -2,20 +2,27 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const morgan = require('morgan');
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
+
+const setupBattleHandler = require('./socket/battleHandler');
 
 const authRoutes = require('./routes/authRoutes');
 const practiceRoutes = require('./routes/practiceRoutes');
+const battleRoutes = require('./routes/battleRoutes');
 
 const app = express();
 
 // ── Core Middleware ──────────────────────────────────────
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'http://localhost:5174'],
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(morgan('dev'));
 
 // ── Static files ─────────────────────────────────────────
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
@@ -44,11 +51,22 @@ app.use('/api', (req, res, next) => {
 // ── Routes ───────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/practice', practiceRoutes);
+app.use('/api/battles', battleRoutes);
 
 // ── Start server & connect DB ────────────────────────────
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'http://localhost:5174'],
+    methods: ["GET", "POST"]
+  }
+});
+
+setupBattleHandler(io);
+
+server.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
 
