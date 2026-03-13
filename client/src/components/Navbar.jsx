@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, LogOut, Sparkles, User, LayoutDashboard } from 'lucide-react';
+import { LogIn, LogOut, Sparkles, User, LayoutDashboard, Users } from 'lucide-react';
 import { useState } from 'react';
 
 /* ── tokens ── */
@@ -109,6 +109,14 @@ export default function Navbar() {
                                         Dashboard
                                     </span>
                                 </span>
+                            </Link>
+
+                            {/* Arena */}
+                            <Link to="/arena" style={{ ...btnOutline, background: T.beige, borderColor: T.blue, color: T.blue }}
+                                onMouseEnter={e => e.currentTarget.style.background = '#e3f2fd'}
+                                onMouseLeave={e => e.currentTarget.style.background = T.beige}
+                            >
+                                <Users size={15} /> Arena
                             </Link>
 
                             {/* Practice */}

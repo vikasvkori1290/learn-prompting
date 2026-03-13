@@ -8,6 +8,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import PracticePage from './pages/PracticePage';
 import DashboardPage from './pages/DashboardPage';
+import CreateBattlePage from './pages/CreateBattlePage';
+import ArenaPage from './pages/ArenaPage';
+import BattleRoomPage from './pages/BattleRoomPage';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE';
 
@@ -33,6 +36,30 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-battle"
+              element={
+                <ProtectedRoute>
+                  <CreateBattlePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/arena"
+              element={
+                <ProtectedRoute>
+                  <ArenaPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/battle/:battleId"
+              element={
+                <ProtectedRoute>
+                  <BattleRoomPage />
                 </ProtectedRoute>
               }
             />

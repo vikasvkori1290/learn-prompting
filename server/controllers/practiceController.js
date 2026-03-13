@@ -1,16 +1,10 @@
 const axios = require('axios');
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const PracticeImage = require('../models/PracticeImage');
 const Session = require('../models/Session');
 const User = require('../models/User');
 
-// Create Groq client fresh on every call (ensures latest env var is used)
-function getOpenAI() {
-    return new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
-        baseURL: 'https://api.groq.com/openai/v1',
-    });
-}
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Picsum image categories (used to assign tags for display)
 const SCENE_TAGS = [
@@ -29,27 +23,6 @@ function pickDifficulty(id) {
     return ['easy', 'medium', 'hard'][n];
 }
 
-/**
- * Calls an OpenAI function with automatic retry on 429 / rate-limit errors.
- */
-async function callOpenAIWithRetry(fn, maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            return await fn();
-        } catch (err) {
-            const isRateLimit =
-                err.status === 429 ||
-                (err.message && (err.message.includes('rate') || err.message.includes('quota')));
-
-            if (isRateLimit && attempt < maxRetries) {
-                console.warn(`[OpenAI] Rate limit hit (attempt ${attempt}/${maxRetries}). Retrying in 30s...`);
-                await new Promise(resolve => setTimeout(resolve, 30_000));
-            } else {
-                throw err;
-            }
-        }
-    }
-}
 
 // ─── GET RANDOM IMAGE ────────────────────────────────────────────────────────
 
@@ -106,18 +79,12 @@ const evaluatePrompt = async (req, res) => {
         const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 10000 });
         const base64Image = Buffer.from(imgRes.data).toString('base64');
         const mimeType = (imgRes.headers['content-type'] || 'image/jpeg').split(';')[0];
-        const dataUrl = `data:${mimeType};base64,${base64Image}`;
 
-        const response = await callOpenAIWithRetry(() =>
-            getOpenAI().chat.completions.create({
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-                messages: [
-                    {
-                        role: 'user',
-                        content: [
-                            {
-                                type: 'text',
-                                text: `You are a strict image-prompt evaluator. A user was shown an image and wrote a prompt to describe it.
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const result = await model.generateContent([
+            {
+                text: `You are a strict image-prompt evaluator. A user was shown an image and wrote a prompt to describe it.
 
 User's prompt: "${userPrompt}"
 
@@ -136,21 +103,17 @@ Steps:
 
 Respond ONLY with this exact JSON (no markdown, no extra words):
 {"score": <integer total>, "feedback": "<one specific sentence>"}`,
+            },
+            {
+                inlineData: {
+                    data: base64Image,
+                    mimeType: mimeType
+                }
+            }
+        ]);
 
-                            },
-                            {
-                                type: 'image_url',
-                                image_url: { url: dataUrl },
-                            },
-                        ],
-                    },
-                ],
-                max_tokens: 400,
-                temperature: 0.3,
-            })
-        );
-
-        const rawText = response.choices[0].message.content.trim();
+        const genResponse = await result.response;
+        const rawText = genResponse.text();
 
         let parsed;
         try {
@@ -203,32 +166,23 @@ const getHint = async (req, res) => {
         const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 8000 });
         const base64Image = Buffer.from(imgRes.data).toString('base64');
         const mimeType = (imgRes.headers['content-type'] || 'image/jpeg').split(';')[0];
-        const dataUrl = `data:${mimeType};base64,${base64Image}`;
 
-        const response = await callOpenAIWithRetry(() =>
-            getOpenAI().chat.completions.create({
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-                messages: [
-                    {
-                        role: 'user',
-                        content: [
-                            {
-                                type: 'text',
-                                text: 'Look at this image and give the user 3 very short keyword-style HINTS to help them describe it, without giving away the full answer. Each hint should be a single word or very short phrase (e.g. "golden light", "mountainous", "close-up face"). Format your answer as a single line: "Hint: [keyword1], [keyword2], [keyword3]"',
-                            },
-                            {
-                                type: 'image_url',
-                                image_url: { url: dataUrl },
-                            },
-                        ],
-                    },
-                ],
-                max_tokens: 60,
-                temperature: 0.4,
-            })
-        );
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        const hint = response.choices[0].message.content.trim();
+        const result = await model.generateContent([
+            {
+                text: 'Look at this image and give the user 3 very short keyword-style HINTS to help them describe it, without giving away the full answer. Each hint should be a single word or very short phrase (e.g. "golden light", "mountainous", "close-up face"). Format your answer as a single line: "Hint: [keyword1], [keyword2], [keyword3]"',
+            },
+            {
+                inlineData: {
+                    data: base64Image,
+                    mimeType: mimeType
+                }
+            }
+        ]);
+
+        const genResponse = await result.response;
+        const hint = genResponse.text().trim();
         res.json({ hint });
     } catch (error) {
         console.error('Hint error:', error.message);
